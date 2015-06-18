@@ -4,7 +4,7 @@
   A raster is a vector of columns
   
   ")
-
+[]
 (defn- vec-replace-if
   "Conditionally replaces elements of v1 with elements from v2. It starts from the specified offset
   and uses the choose-fn to determine what value to use in v1."
@@ -24,9 +24,9 @@
   ([r1 r2]
    (raster-replace r1 r2 0 0))
   ([r1 r2 x-offset y-offset]
-   (vec-replace-if r1 r2 y-offset 
+   (vec-replace-if r1 r2 x-offset 
                    (fn [col1 col2]
-                     (vec-replace-if col1 col2 x-offset
+                     (vec-replace-if col1 col2 y-offset
                                      #(or %2 %1))))))
 
 (defn transpose 

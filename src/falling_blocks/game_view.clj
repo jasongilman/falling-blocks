@@ -1,6 +1,7 @@
 (ns falling-blocks.game-view
   (:require [bocko.core :as b]
             [falling-blocks.draw :as d]
+            [falling-blocks.board :as brd]
             [com.stuartsierra.component :as c]))
 
 
@@ -10,7 +11,7 @@
   [{:keys [board next-up border-size] :as game-view}]
   (let [updated-view (update-in game-view [:bocko-view :raster]
                                 #(-> %
-                                     (d/raster-replace (:matrix board) border-size border-size)
+                                     (d/raster-replace (brd/board-raster board) border-size border-size)
                                      ;; TODO next up
                                      ))]
     (b/apply-raster! (:bocko-view updated-view))
