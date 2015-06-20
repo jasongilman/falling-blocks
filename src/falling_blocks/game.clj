@@ -27,7 +27,17 @@
           (= port timeout-chan)
           ;; We timed out. Time to drop the current block
           (do
-            ; (println "TODO drop the block")
+            (println "Dropping")
+            (if (b/handle-command board :down)
+              (println "Successfully dropped")
+              (do 
+                (println "Reached the bottom.")
+                ;; TODO merge into board
+                ;; get next up and add as a falling piece on the board
+                ;; If the falling piece collides with the board initially they lose.
+                ;; Throw exception that game is over.
+                ))
+            (gv/update-view game-view)
             (recur))
           
           (and (some? v) (= port key-channel))

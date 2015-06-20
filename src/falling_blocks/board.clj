@@ -84,6 +84,10 @@
   "Handles the command. Returns true or false depending on whether the command could be carried out."
   [board command]
   {:pre [(valid-commands command)]}
-  (swap! (:falling-piece-atom board) #(p/handle-command % command)))
+  (let [falling-piece-atom (:falling-piece-atom board)
+        before-state @falling-piece-atom
+        after-state (swap! falling-piece-atom #(p/handle-command % command))]
+    ;; Return true if there was an actual change
+    (not= before-state after-state)))
 
 
