@@ -8,52 +8,74 @@
                      ;; TODO describe what these are
                      [[:red :red :red :red]]
                      
-                     [[nil :red]
-                      [nil :red]
-                      [nil :red]
-                      [nil :red]]
+                     [[:red]
+                      [:red]
+                      [:red]
+                      [:red]]
                      
-                     [[:red :red :red :red]]
-                     
-                     [[nil nil :red]
-                      [nil nil :red]
-                      [nil nil :red]
-                      [nil nil :red]]
                      ])})
 
 (defn new-falling-piece
-  [horizontal-pos]
+  [horizontal-pos width height]
   {:location [horizontal-pos 0]
    :piece long-piece
-   :position-index 3})
+   :position-index 1
+   :board-height height
+   :board-width width})
 
-(defn falling-piece->raster
+(defn to-raster
   [{:keys [piece position-index]}]
   (get-in piece [:positions position-index]))
 
 (defn apply-to-raster
-  [raster falling-piece]
-  (let [piece-raster (falling-piece->raster falling-piece)
-        [x y] (:location falling-piece)]
+  [raster piece]
+  (let [piece-raster (to-raster piece)
+        [x y] (:location piece)]
     (r/raster-replace raster piece-raster x y)))
 
+(defn on-board?
+  "Returns true if the piece currently fits on the board"
+  [{:keys [board-width board-height] 
+    [x y] :location 
+    :as piece}]
+  (let [raster (to-raster piece)
+        pos-height (r/raster-height raster)
+        pos-width (r/raster-width raster)]
+    (and (>= x 0)
+         (<= (+ x pos-width) board-width)
+         (>= y 0)
+         (<= (+ y pos-height) board-height))))
+
+(defn- coordinate-change
+  "Updates the pieces location coordinate only if it can still stay on the board."
+  [piece coordinate f]
+  (let [location-index (get {:x 0 :y 1} coordinate)
+        updated (update-in piece [:location location-index] f)]
+    (if (on-board? updated)
+      updated
+      ;; The change would move it off the board so we do not allow it.
+      piece)))
+
 (defmulti handle-command
-  (fn [falling-piece command]
+  (fn [piece command]
     command))
 
 (defmethod handle-command :down
-  [falling-piece command]
-  (update-in falling-piece [:location 1] inc))
+  [piece command]
+  (coordinate-change piece :y inc))
 
 (defmethod handle-command :left
-  [falling-piece command]
-  (update-in falling-piece [:location 0] dec))
+  [piece command]
+  (coordinate-change piece :x dec))
 
 (defmethod handle-command :right
-  [falling-piece command]
-  (update-in falling-piece [:location 0] inc))
+  [piece command]
+  (coordinate-change piece :x inc))
 
 (defmethod handle-command :rotate
-  [falling-piece command]
-  (let [num-positions (-> falling-piece :piece :positions count)]
-    (update-in falling-piece [:position-index] #(mod (inc %) num-positions))))
+  [piece command]
+  (let [num-positions (-> piece :piece :positions count)
+        updated (update-in piece [:position-index] #(mod (inc %) num-positions))]
+    (if (on-board? updated)
+      updated
+      piece)))

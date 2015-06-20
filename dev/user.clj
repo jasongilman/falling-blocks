@@ -5,7 +5,8 @@
             [clojure.repl :refer :all]
             [com.stuartsierra.component :as c]
             [falling-blocks.system :as s]
-            [alex-and-georges.debug-repl :refer :all]))
+            [alex-and-georges.debug-repl :refer :all]
+            [i]))
 
 (def system nil)
 

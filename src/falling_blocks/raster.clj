@@ -23,6 +23,16 @@
   (and (>= y 0)
        (< y (raster-height r))))
 
+(defmacro pre-logger
+  [body]
+  (let [vars (keys &env)
+        println-args (reduce into [] (for [v vars]
+                                       [(str (name v) "=") v]))]
+    `(let [result# ~body]
+       (when-not result#
+         (println "pre fail:" ~@println-args))
+       result#)))
+
 (defn- vec-replace-if
   "Conditionally replaces elements of v1 with elements from v2. It starts from the specified offset
   and uses the choose-fn to determine what value to use in v1."
@@ -49,10 +59,10 @@
 
 (defn raster-subset
   [raster x-offset y-offset width height]
-  {:pre [(valid-x? raster x-offset)
-         (valid-x? raster (dec (+ x-offset width)))
-         (valid-y? raster y-offset)
-         (valid-y? raster (dec (+ y-offset height)))]}
+  {:pre [(pre-logger (valid-x? raster x-offset))
+         (pre-logger (valid-x? raster (dec (+ x-offset width))))
+         (pre-logger (valid-y? raster y-offset))
+         (pre-logger (valid-y? raster (dec (+ y-offset height))))]}
   
   (mapv #(subvec % y-offset (+ y-offset height))
         (subvec raster x-offset (+ x-offset width))))
@@ -81,7 +91,7 @@
   [raster test-fn]
   (->> raster
        raster->location-value-sequence
-       (remove #(test-fn (:value %)))
+       (filter #(test-fn (:value %)))
        (map #(vector (:x %) (:y %)))))
 
 

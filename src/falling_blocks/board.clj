@@ -35,7 +35,7 @@
   [board falling-piece]
   ;; TODO validate it's still on the board (left, right, bottom)
   
-  (let [fp-raster (p/falling-piece->raster falling-piece)
+  (let [fp-raster (p/to-raster falling-piece)
         {[x y] :location} falling-piece
         matrix (-> board :matrix-atom deref)
         covered-section (r/raster-subset 
@@ -44,36 +44,36 @@
         matrix-occupied-pos (set (r/locations-matching-value 
                                   covered-section #(not= % background-color)))
         piece-occupied-pos (set (r/locations-matching-value fp-raster some?))]
-    (some? (seq (set/intersection matrix-occupied-pos piece-occupied-pos)))))
+    (nil? (seq (set/intersection matrix-occupied-pos piece-occupied-pos)))))
 
 (comment
   
   (r/print-raster (-> user/system :board :matrix-atom deref))
-  (r/print-raster (-> user/system :board :falling-piece-atom deref p/falling-piece->raster))
+  (r/print-raster (-> user/system :board :falling-piece-atom deref p/to-raster))
   
   
-  (->> (p/falling-piece->raster (-> user/system :board :falling-piece-atom deref))
+  (->> (p/to-raster (-> user/system :board :falling-piece-atom deref))
        r/raster->location-value-sequence
        (remove #(= (:value %) nil))
        (map #(vector (:x %) (:y %)))
        set)
   
-  
-  
   )
-
 
 (defn create-board
   [options]
   (let [{:keys [board-width
                 board-height
                 background-color] :as options} (merge default-options options)
-        falling-piece-atom (atom (p/new-falling-piece (/ board-width 2)))
+        falling-piece-atom (atom (p/new-falling-piece (/ board-width 2) board-width board-height))
         row (vec (repeat board-height background-color))
         board (map->Board
                 (assoc options
                        :matrix-atom (atom (vec (repeat board-width row)))
                        :falling-piece-atom falling-piece-atom))]
+    (when-not (validate-falling-piece board (deref falling-piece-atom))
+      (throw (Exception. "Invalid initial state")))
+    
     (set-validator! falling-piece-atom #(validate-falling-piece board %))
     board))
 
@@ -85,3 +85,5 @@
   [board command]
   {:pre [(valid-commands command)]}
   (swap! (:falling-piece-atom board) #(p/handle-command % command)))
+
+
