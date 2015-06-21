@@ -1,7 +1,10 @@
 (ns i
   "Helper for inspecting clojure values produced at runtime. The two main functions are save and 
   inspect. Save saves the value associated with a symbol for later inspection. Inspect returns a
-  previously saved value.")
+  previously saved value.
+  
+  Use (i/save some-value) to capture a value at runtime. Then run (i/inspect some-value) to retrieve
+  its value.")
 
 (def inspected
   "A map of inspected symbols to values"

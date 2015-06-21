@@ -1,17 +1,28 @@
 (ns falling-blocks.game
+  "TODO"
   (:require [clojure.core.async :as a]
             [com.stuartsierra.component :as c]
             [falling-blocks.game-view :as gv]
             [falling-blocks.board :as b]
             [falling-blocks.keyboard :as keyboard]))
 
-(def drop-msecs 1000)
+(def drop-msecs 
+  "How long it takes for a piece to fall one row in milliseconds."
+  1000)
+
+(def space-key "␣")
+
+(def down-key "↓")
+
+(def left-key "←")
+
+(def right-key "→")
 
 (def key->command
-  {"␣" :rotate
-   "↓" :down
-   "←" :left
-   "→" :right})
+  {space-key :rotate
+   down-key :down
+   left-key :left
+   right-key :right})
 
 (defn- create-game-loop
   "TODO"
@@ -27,11 +38,11 @@
           (= port timeout-chan)
           ;; We timed out. Time to drop the current block
           (do
-            (println "Dropping")
+            ; (println "Dropping")
             (if (b/handle-command board :down)
-              (println "Successfully dropped")
+              ; (println "Successfully dropped")
               (do 
-                (println "Reached the bottom.")
+                ; (println "Reached the bottom.")
                 ;; TODO merge into board
                 ;; get next up and add as a falling piece on the board
                 ;; If the falling piece collides with the board initially they lose.

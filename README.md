@@ -1,31 +1,25 @@
 # falling-blocks
 
-A Clojure library designed to ... well, that part is up to you.
+A skeleton project for building a Tetris clone. This uses a fork of the [Bocko](https://github.com/mfikes/bocko) library called [Bocko Fun](https://github.com/jasongilman/bocko-fun).
 
-## Usage
+## Implementing the Game
 
-FIXME
+TODO
 
-## TODOs
+* Describe starting point of the project
+  * game loop, board displayed, one piece implemented. It falls and you can move and rotate it.
+* Look for TODOs
 
-  * change everything to use component library
-  * Make game a component and the view a component
-  * make game dependent on view. When game starts it will create the keyboard channel from the view
+## Startup
 
-Other design thoughs
+Run `lein repl` in the project directory
 
-  * design pieces
-    * Do one type at first (L)
-    * Get it to work all the way through - no rotation
-    * Allow control and dropping of the peice
-  * Add rotation of the piece
-  * add other pieces
-
+Then run `(reset)` in the repl. A swing window will open and the game will start. 
 
 
 ## License
 
-Copyright © 2015 FIXME
+Copyright © 2015 Jason Gilman
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.

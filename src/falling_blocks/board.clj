@@ -1,4 +1,5 @@
 (ns falling-blocks.board
+  "The board represents the playable area of the game where pieces fall."
   (:require [falling-blocks.raster :as r]
             [falling-blocks.pieces :as p]
             [clojure.set :as set]))
@@ -11,13 +12,18 @@
 (defrecord Board
   [
    board-width
+   
    board-height
+   
+   ;; A keyword representing the background colore of the board
    background-color
    
-   ;; A vector of vectors
-   ;; inner vectors are columns
+   ;; An atom containing the current state of the board as a matrix which consists of a vector of 
+   ;; vectors. The outer vector contains columns. Each column is a vector of symbols of colors.
    matrix-atom
    
+   ;; An atom containing the state of the current falling piece on the board.
+   ;; falling-block.pieces namespace for a description of a piece
    falling-piece-atom
    ]
   )
@@ -29,12 +35,9 @@
         falling-piece (deref falling-piece-atom)]
     (p/apply-to-raster matrix falling-piece)))
 
-(defn validate-falling-piece
-  "Validates that the falling piece on the board. Makes sure that any part of the piece in it's 
-  current position does not overlap other pieces"
+(defn falling-piece-validator
+  "Checks if the falling piece is in a good position ie. does not overlap any other pieces."
   [board falling-piece]
-  ;; TODO validate it's still on the board (left, right, bottom)
-  
   (let [fp-raster (p/to-raster falling-piece)
         {[x y] :location} falling-piece
         matrix (-> board :matrix-atom deref)
@@ -46,48 +49,46 @@
         piece-occupied-pos (set (r/locations-matching-value fp-raster some?))]
     (nil? (seq (set/intersection matrix-occupied-pos piece-occupied-pos)))))
 
-(comment
-  
-  (r/print-raster (-> user/system :board :matrix-atom deref))
-  (r/print-raster (-> user/system :board :falling-piece-atom deref p/to-raster))
-  
-  
-  (->> (p/to-raster (-> user/system :board :falling-piece-atom deref))
-       r/raster->location-value-sequence
-       (remove #(= (:value %) nil))
-       (map #(vector (:x %) (:y %)))
-       set)
-  
-  )
-
 (defn create-board
-  [options]
-  (let [{:keys [board-width
-                board-height
-                background-color] :as options} (merge default-options options)
-        falling-piece-atom (atom (p/new-falling-piece (/ board-width 2) board-width board-height))
-        row (vec (repeat board-height background-color))
-        board (map->Board
-                (assoc options
-                       :matrix-atom (atom (vec (repeat board-width row)))
-                       :falling-piece-atom falling-piece-atom))]
-    (when-not (validate-falling-piece board (deref falling-piece-atom))
-      (throw (Exception. "Invalid initial state")))
-    
-    (set-validator! falling-piece-atom #(validate-falling-piece board %))
-    board))
+  "TODO"
+  ([]
+   (create-board nil))
+  ([options]
+   (let [{:keys [board-width
+                 board-height
+                 background-color] :as options} (merge default-options options)
+         falling-piece-atom (atom (p/new-falling-piece (/ board-width 2) board-width board-height))
+         row (vec (repeat board-height background-color))
+         board (map->Board
+                 (assoc options
+                        :matrix-atom (atom (vec (repeat board-width row)))
+                        :falling-piece-atom falling-piece-atom))]
+     
+     (when-not (falling-piece-validator board (deref falling-piece-atom))
+       (throw (Exception. "Invalid initial state")))
+     
+     ;; falling-piece-validator is used as the validator of the falling piece atom. It will
+     ;; make sure it doesn't overlap any other pieces on the board.
+     (set-validator! falling-piece-atom #(falling-piece-validator board %))
+     
+     board)))
 
 (def valid-commands
+  "Valid movement commands for a piece"
   #{:down :left :right :rotate})
 
 (defn handle-command
   "Handles the command. Returns true or false depending on whether the command could be carried out."
   [board command]
   {:pre [(valid-commands command)]}
-  (let [falling-piece-atom (:falling-piece-atom board)
-        before-state @falling-piece-atom
-        after-state (swap! falling-piece-atom #(p/handle-command % command))]
-    ;; Return true if there was an actual change
-    (not= before-state after-state)))
+  (try
+    (let [falling-piece-atom (:falling-piece-atom board)
+          before-state @falling-piece-atom
+          after-state (swap! falling-piece-atom #(p/handle-command % command))]
+      ;; Return true if there was an actual change
+      (not= before-state after-state))
+    (catch IllegalStateException _
+      ;; The validator was triggered for the command which means it would overlap another peice.
+      false)))
 
 

@@ -1,14 +1,18 @@
 (ns falling-blocks.game-view
-  (:require [bocko.core :as b]
+  "TODO"
+  (:require [bocko-fun.core :as b]
             [falling-blocks.raster :as r]
             [falling-blocks.board :as brd]
             [com.stuartsierra.component :as c]))
 
+(def border-size
+  "The width of the border around the view"
+  2)
 
 ;; TODO consider renaming or relocating this
 (defn update-view
   "TODO"
-  [{:keys [board next-up border-size] :as game-view}]
+  [{:keys [board next-up] :as game-view}]
   (let [updated-view (update-in game-view [:bocko-view :raster]
                                 #(-> %
                                      (r/raster-replace (brd/board-raster board) border-size border-size)
@@ -17,26 +21,8 @@
     (b/apply-raster! (:bocko-view updated-view))
     updated-view))
 
-(comment
-  (r/print-raster (get-in user/system [:game-view :bocko-view :raster]))
-  
-  (def bv (get-in user/system [:game-view :bocko-view]))
-  
-  (-> bv
-      (b/color :red)
-      (b/vlin 5 10 0)
-      b/apply-raster!)
-  
-  
-  )
-
-
-
 (defrecord GameView
   [
-   ;; config
-   border-size
-   
    ;; dependencies
    board
    next-up
@@ -68,7 +54,7 @@
     (assoc this :bocko-view nil)))
 
 (defn create-game-view
-  [{:keys [border-size]}]
-  (map->GameView {:border-size border-size}))
+  []
+  (map->GameView {}))
 
 
