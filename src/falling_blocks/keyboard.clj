@@ -1,19 +1,20 @@
 (ns falling-blocks.keyboard
-  "TODO"
+  "Defines functions for reading keyboard presses."
   (:require [clojure.core.async :as a])
   (:import java.awt.event.KeyListener
            java.awt.event.KeyEvent
            javax.swing.event.MouseInputListener))
 
 (defn- ultimate-parent
-  "TODO"
+  "Recursively finds the highest level swing panel parent."
   [swing-panel]
   (when swing-panel
     (or (ultimate-parent (.getParent swing-panel)) 
         swing-panel)))
 
 (defn create-key-channel
-  "Creates a key channel with a dropping buffer that will contain strings with the keys pressed"
+  "Creates a core.async channel with a dropping buffer that will contain strings identifying the key 
+  pressed."
   [swing-panel]
   (let [ch (a/chan (a/sliding-buffer 10))
         kl (reify KeyListener

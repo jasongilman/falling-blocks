@@ -1,5 +1,5 @@
 (ns falling-blocks.game-view
-  "TODO"
+  "Contains a component that represents the game view and functions for manipulating it."
   (:require [bocko-fun.core :as b]
             [falling-blocks.raster :as r]
             [falling-blocks.board :as brd]
@@ -9,9 +9,11 @@
   "The width of the border around the view"
   2)
 
-;; TODO consider renaming or relocating this
 (defn update-view
-  "TODO"
+  "Updates the view state to display the latest data on the board.
+  
+  This should be called manually when the view should update. Ideally we wouldn't do this. It should
+  be hooked up via a watcher or similar."
   [{:keys [board next-up] :as game-view}]
   (let [updated-view (update-in game-view [:bocko-view :raster]
                                 #(-> %
@@ -42,8 +44,7 @@
                                      :pixel-width 15
                                      :pixel-height 15
                                      :clear-color :black
-                                     :default-color :white})
-          ]
+                                     :default-color :white})]
       (-> this
           (assoc :bocko-view bocko-view)
           update-view)))

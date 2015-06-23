@@ -1,9 +1,6 @@
 (ns falling-blocks.raster
-  "Defines functions for drawing.
-  TODO
-  A raster is a vector of columns
-  
-  ")
+  "Defines functions for manipulating rasters. A raster is essentially a matrix. It's is a vector of 
+  columns. Each column is a vector of keywords representing the colors in those locations.")
 
 (defn raster-height
   [r]
@@ -24,6 +21,7 @@
        (< y (raster-height r))))
 
 (defmacro pre-logger
+  "Helper macro for function pre checks. It prints out the values of the variables used in the pre check."
   [body]
   (let [vars (keys &env)
         println-args (reduce into [] (for [v vars]
@@ -45,10 +43,7 @@
     (into (into v1-begin new-middle) v1-end)))
 
 (defn raster-replace
-  "TODO
-  Replaces elements of raster 1 with raster 2 starting from the specified x and y offsets
-  y offset from the top
-  x offset from the left"
+  "Replaces elements of raster 1 with raster 2 starting from the specified x and y offsets."
   ([r1 r2]
    (raster-replace r1 r2 0 0))
   ([r1 r2 x-offset y-offset]
@@ -58,6 +53,7 @@
                                      #(or %2 %1))))))
 
 (defn raster-subset
+  "Returns a subset of a given raster."
   [raster x-offset y-offset width height]
   {:pre [(pre-logger (valid-x? raster x-offset))
          (pre-logger (valid-x? raster (dec (+ x-offset width))))
@@ -67,12 +63,14 @@
   (mapv #(subvec % y-offset (+ y-offset height))
         (subvec raster x-offset (+ x-offset width))))
 
-(defn transpose 
+(defn transpose
+  "Transposes a given raster. If you pass in a normal raster of vector of columns it will become a
+  vector of rows or vice versa."
   [m]
   (apply mapv vector m))
 
 (defn print-raster
-  "TODO helps with debugging"
+  "Prints out a raster. Helps with debugging"
   [r]
   (println)
   (doseq [row (transpose r)]

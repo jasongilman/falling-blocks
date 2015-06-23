@@ -28,13 +28,6 @@
    ]
   )
 
-(defn board-raster
-  "Returns a board raster showing what should be displayed with the current falling piece"
-  [{:keys [matrix-atom falling-piece-atom]}]
-  (let [matrix (deref matrix-atom)
-        falling-piece (deref falling-piece-atom)]
-    (p/apply-to-raster matrix falling-piece)))
-
 (defn falling-piece-validator
   "Checks if the falling piece is in a good position ie. does not overlap any other pieces."
   [board falling-piece]
@@ -50,14 +43,14 @@
     (nil? (seq (set/intersection matrix-occupied-pos piece-occupied-pos)))))
 
 (defn create-board
-  "TODO"
+  "Creates a new board with the given options"
   ([]
    (create-board nil))
   ([options]
    (let [{:keys [board-width
                  board-height
                  background-color] :as options} (merge default-options options)
-         falling-piece-atom (atom (p/new-falling-piece (/ board-width 2) board-width board-height))
+         falling-piece-atom (atom (p/new-falling-piece (/ board-width 2)))
          row (vec (repeat board-height background-color))
          board (map->Board
                  (assoc options
@@ -73,6 +66,13 @@
      
      board)))
 
+(defn board-raster
+  "Returns a board raster showing what should be displayed with the current falling piece"
+  [{:keys [matrix-atom falling-piece-atom]}]
+  (let [matrix (deref matrix-atom)
+        falling-piece (deref falling-piece-atom)]
+    (p/apply-to-raster matrix falling-piece)))
+
 (def valid-commands
   "Valid movement commands for a piece"
   #{:down :left :right :rotate})
@@ -84,7 +84,7 @@
   (try
     (let [falling-piece-atom (:falling-piece-atom board)
           before-state @falling-piece-atom
-          after-state (swap! falling-piece-atom #(p/handle-command % command))]
+          after-state (swap! falling-piece-atom #(p/handle-command board % command))]
       ;; Return true if there was an actual change
       (not= before-state after-state))
     (catch IllegalStateException _
