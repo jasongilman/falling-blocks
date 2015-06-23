@@ -58,6 +58,9 @@
                 ;; get next up and add as a falling piece on the board
                 ;; If the falling piece collides with the board initially they lose.
                 ;; Throw exception that game is over.
+                
+                ;; If the merged piece fills in a whole line on the board remove that line.
+                
                 ))
             (gv/update-view game-view)
             (recur (a/timeout drop-msecs)))

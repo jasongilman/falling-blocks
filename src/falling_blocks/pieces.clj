@@ -21,6 +21,10 @@
                       [:red]]
                      ])})
 
+;; TODO add more piece types
+
+
+;; TODO make this create a random piece
 (defn new-falling-piece
   "Creates a new falling piece. A falling piece has a piece and information about its location and
   rotation on the board."
