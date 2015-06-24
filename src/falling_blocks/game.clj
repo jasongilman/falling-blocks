@@ -48,22 +48,21 @@
           ;; Did we timeout?
           (= port timeout-chan)
           ;; We timed out. Time to drop the current block
-          (do
-            ; (println "Dropping")
-            (if (b/handle-command board :down)
-              ; (println "Successfully dropped")
-              (do 
-                ; (println "Reached the bottom.")
-                ;; TODO merge into board
-                ;; get next up and add as a falling piece on the board
-                ;; If the falling piece collides with the board initially they lose.
-                ;; Throw exception that game is over.
-                
-                ;; If the merged piece fills in a whole line on the board remove that line.
-                
-                ))
-            (gv/update-view game-view)
-            (recur (a/timeout drop-msecs)))
+          (if (b/handle-command board :down)
+            (do 
+              (gv/update-view game-view)
+              (recur (a/timeout drop-msecs)))
+            (do 
+              (println "Reached the bottom.")
+              
+              ;; TODO            
+              ;; get next up and add as a falling piece on the board
+              ;; If the merged piece fills in a whole line on the board remove that line.
+              (if (b/merge-falling-piece board)
+                (do 
+                  (gv/update-view game-view)
+                  (recur (a/timeout drop-msecs)))
+                (println "Game over man!"))))
           
           ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
           ;; Was a key pressed?

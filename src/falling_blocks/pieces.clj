@@ -21,6 +21,41 @@
                       [:red]]
                      ])})
 
+(def L-piece
+  {:positions 
+   (mapv r/transpose
+         [ 
+          
+          [[:dark-blue :dark-blue :dark-blue]
+           [nil         nil       :dark-blue]]
+          
+          [[nil :dark-blue]
+           [nil :dark-blue]
+           [:dark-blue :dark-blue]]
+          
+          [[:dark-blue nil nil]
+           [:dark-blue :dark-blue :dark-blue]]
+          
+          [[:dark-blue :dark-blue]
+           [:dark-blue nil]
+           [:dark-blue nil]]
+          
+          ])})
+
+(comment
+  (r/print-raster (-> L-piece :positions first))
+  
+  )
+
+(def square-piece 
+  {:positions [
+               
+               [[:yellow :yellow]
+                [:yellow :yellow]]
+               
+               ]})
+
+
 ;; TODO add more piece types
 
 
@@ -30,8 +65,8 @@
   rotation on the board."
   [horizontal-pos]
   {:location [horizontal-pos 0]
-   :piece long-piece
-   :position-index 1})
+   :piece L-piece
+   :position-index 0})
 
 (defn to-raster
   "Returns a raster of the falling piece in it's current rotation."

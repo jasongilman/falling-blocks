@@ -28,6 +28,16 @@
    ]
   )
 
+(defn merge-falling-piece
+  [{:keys [matrix-atom falling-piece-atom board-width]}]
+  (swap! matrix-atom #(p/apply-to-raster % @falling-piece-atom))
+  (try 
+    (reset! falling-piece-atom (p/new-falling-piece (/ board-width 2)))
+    true
+    (catch IllegalStateException _
+      ;; Game over. The board is full.
+      false)))
+
 (defn falling-piece-validator
   "Checks if the falling piece is in a good position ie. does not overlap any other pieces."
   [board falling-piece]
